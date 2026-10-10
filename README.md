@@ -51,6 +51,28 @@ nix run github:nklmilojevic/pi-flake -- --version
 nix profile install github:nklmilojevic/pi-flake
 ```
 
+### Binary cache
+
+CI builds `main` for x86_64-linux, aarch64-linux and aarch64-darwin and pushes
+the results to the `nkl-nix-config` Cachix cache:
+
+```nix
+{
+  nix.settings = {
+    extra-substituters = [ "https://nkl-nix-config.cachix.org" ];
+    extra-trusted-public-keys = [ "nkl-nix-config.cachix.org-1:BFC4/yovGI+0E8ZZE0K3H6Mu2uBaqSU/kTnSvFQs5uE=" ];
+  };
+}
+```
+
+The cache only matches builds against this flake's own pinned nixpkgs, so use
+`pi.packages.${system}.pi` and do **not** set `inputs.pi.inputs.nixpkgs.follows`.
+The overlay below builds against your nixpkgs and never hits the cache.
+
+```nix
+environment.systemPackages = [ inputs.pi.packages.${pkgs.stdenv.hostPlatform.system}.pi ];
+```
+
 ### Use the overlay
 
 ```nix

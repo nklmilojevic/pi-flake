@@ -5,6 +5,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+  # update.yaml pushes with GITHUB_TOKEN, which never triggers this workflow,
+  # so rebuild main hourly to keep the cache warm. A run with nothing new only
+  # substitutes from the cache.
+  schedule:
+    - cron: "45 * * * *"
 
 jobs:
   fmt-check:
@@ -39,6 +45,13 @@ jobs:
 
       - name: Setup Nix
         uses: ./.github/actions/setup-nix
+
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: nkl-nix-config
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          skipPush: ${{ github.event_name == 'pull_request' }}
 
       - name: Build pi
         run: nix build .#pi
