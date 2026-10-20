@@ -47,7 +47,7 @@ jobs:
         uses: ./.github/actions/setup-nix
 
       - name: Setup Cachix
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
           name: nkl-nix-config
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
